@@ -4,7 +4,7 @@
 
 %global pecl_name  imagick
 %global real_name php-pecl-imagick
-%global php_base php55u
+%global php_base php56u
 %global ini_name  40-%{pecl_name}.ini
 
 Summary: Provides a wrapper to the ImageMagick library
