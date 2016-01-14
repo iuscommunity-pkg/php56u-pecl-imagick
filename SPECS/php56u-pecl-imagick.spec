@@ -7,10 +7,14 @@
 %global php_base php56u
 %global ini_name  40-%{pecl_name}.ini
 
+# zts support copied/influenced from Remi Collet
+# https://github.com/remicollet/remirepo/blob/master/php/pecl/php-pecl-imagick/php-pecl-imagick.spec
+%global with_zts 0%{?__ztsphp:1}
+
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
 Version: 3.3.0
-Release: 1.ius%{?dist}
+Release: 2.ius%{?dist}
 License: PHP
 Group: Development/Libraries
 Source0: http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
@@ -54,26 +58,47 @@ IMPORTANT: Version 2.x API is not compatible with earlier versions.
 
 
 %prep
-%setup -q -n %{pecl_name}-%{version}
+%setup -q -c
 
+mv %{pecl_name}-%{version}%{?prever} NTS
+
+%if %{with_zts}
+cp -r NTS ZTS
+%endif
 
 %build
+cd NTS
 phpize
-%{configure} --with-%{pecl_name}
+%configure --with-imagick=%{prefix} --with-php-config=%{_bindir}/php-config
 %{__make}
 
+%if %{with_zts}
+cd ../ZTS
+zts-phpize
+%configure --with-imagick=%{prefix} --with-php-config=%{_bindir}/zts-php-config
+%{__make}
+%endif
 
 %install
 %{__make} install \
-	INSTALL_ROOT=%{buildroot}
+	INSTALL_ROOT=%{buildroot} -C NTS
 
 # Install XML package description
 install -m 0755 -d %{buildroot}%{pecl_xmldir}
-install -m 0664 ../package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
+install -m 0664 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 install -d %{buildroot}%{_sysconfdir}/php.d/
 install -m 0664 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
 
+%if %{with_zts}
+%{__make} install \
+	INSTALL_ROOT=%{buildroot} -C ZTS
+install -d %{buildroot}%{php_ztsinidir}
+install -m 0664 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
+%endif
+
+
 %{__rm} -rf %{buildroot}/%{_includedir}/php/ext/%{pecl_name}/
+%{__rm} -rf %{buildroot}/%{_includedir}/php-zts/php/ext/%{pecl_name}/
 
 
 %check
@@ -99,13 +124,21 @@ fi
 
 
 %files
-%doc examples CREDITS
+%doc NTS/examples NTS/CREDITS
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
+%if %{with_zts}
+%config(noreplace) %{php_ztsinidir}/%{ini_name}
+%{php_ztsextdir}/%{pecl_name}.so
+%endif
 
 %changelog
+* Thu Jan 14 2016 Ben Harper <ben.harper@rackspace.com> - 3.3.0-2.ius
+- enabled zts support, changes copied/influenced from Remi Collet
+  https://github.com/remicollet/remirepo/blob/master/php/pecl/php-pecl-imagick/php-pecl-imagick.spec
+
 * Mon Dec 07 2015 Ben Harper <ben.harper@rackspace.com> - 3.3.0-1.ius
 - Latest sources from upstream
 - remove TODO and INSTALL from %files
