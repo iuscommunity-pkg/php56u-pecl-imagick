@@ -36,9 +36,10 @@ Provides: %{php_base}-pecl(%{pecl_name})%{?_isa} = %{version}
 Provides: %{real_name} = %{version}
 Conflicts: %{real_name} < %{version}
 
-# RPM 4.8
-%{?filter_provides_in: %filter_provides_in %{php_extdir}/.*\.so$}
+%if 0%{?fedora} < 20 && 0%{?rhel} < 7
+%{?filter_provides_in: %filter_provides_in %{_libdir}/.*\.so$}
 %{?filter_setup}
+%endif
 
 
 %description
@@ -130,6 +131,7 @@ fi
 %changelog
 * Wed Feb 17 2016 Carl George <carl.george@rackspace.com> - 3.3.0-3.ius
 - Explicitly require %%{php_base}(api) and %%{php_base}(zend-abi)
+- Manually filter provides only when needed
 
 * Thu Jan 14 2016 Ben Harper <ben.harper@rackspace.com> - 3.3.0-2.ius
 - enabled zts support, changes copied/influenced from Remi Collet
