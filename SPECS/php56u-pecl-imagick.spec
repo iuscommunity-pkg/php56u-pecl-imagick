@@ -10,7 +10,7 @@
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
 Version: 3.3.0
-Release: 2.ius%{?dist}
+Release: 3.ius%{?dist}
 License: PHP
 Group: Development/Libraries
 Source0: http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
@@ -21,8 +21,8 @@ BuildRequires: %{php_base}-devel
 BuildRequires: ImageMagick-devel >= 6.2.4
 Requires(post): %{php_base}-pear
 Requires(postun): %{php_base}-pear
-Requires: php(zend-abi) = %{php_zend_api}
-Requires: php(api) = %{php_core_api}
+Requires: %{php_base}(api) = %{php_core_api}
+Requires: %{php_base}(zend-abi) = %{php_zend_api}
 
 Provides: php-%{pecl_name} = %{version}
 Provides: php-%{pecl_name}%{?_isa} = %{version}
@@ -128,6 +128,9 @@ fi
 
 
 %changelog
+* Wed Feb 17 2016 Carl George <carl.george@rackspace.com> - 3.3.0-3.ius
+- Explicitly require %%{php_base}(api) and %%{php_base}(zend-abi)
+
 * Thu Jan 14 2016 Ben Harper <ben.harper@rackspace.com> - 3.3.0-2.ius
 - enabled zts support, changes copied/influenced from Remi Collet
   https://github.com/remicollet/remirepo/blob/master/php/pecl/php-pecl-imagick/php-pecl-imagick.spec
