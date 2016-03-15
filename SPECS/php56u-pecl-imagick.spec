@@ -91,7 +91,7 @@ popd
 install -Dpm 0644 package.xml %{buildroot}%{pecl_xmldir}/%{pecl_name}.xml
 
 # Install config file
-install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
+install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
 %if %{with_zts}
 %{__make} install INSTALL_ROOT=%{buildroot} -C ZTS
@@ -100,9 +100,9 @@ install -Dpm 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/php.d/%{ini_name}
 install -Dpm 0644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
 
-%{__rm} -rf %{buildroot}/%{_includedir}/php/ext/%{pecl_name}/
+rm -rf %{buildroot}%{php_incldir}/ext/%{pecl_name}/
 %if %{with_zts}
-%{__rm} -rf %{buildroot}/%{_includedir}/php-zts/php/ext/%{pecl_name}/
+rm -rf %{buildroot}%{php_ztsincldir}/ext/%{pecl_name}/
 %endif
 
 
@@ -138,7 +138,7 @@ fi
 %doc NTS/examples NTS/CREDITS
 %{php_extdir}/%{pecl_name}.so
 %{pecl_xmldir}/%{pecl_name}.xml
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
+%config(noreplace) %verify(not md5 mtime size) %{php_inidir}/%{ini_name}
 
 %if %{with_zts}
 %{php_ztsextdir}/%{pecl_name}.so
@@ -152,6 +152,7 @@ fi
 - ZTS cleanup
 - Clean up provides
 - Clean up filters
+- Use standard PHP macros
 
 * Wed Feb 17 2016 Carl George <carl.george@rackspace.com> - 3.3.0-3.ius
 - Explicitly require %%{php_base}(api) and %%{php_base}(zend-abi)
