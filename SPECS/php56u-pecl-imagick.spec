@@ -62,16 +62,18 @@ cp -r NTS ZTS
 
 
 %build
-cd NTS
+pushd NTS
 phpize
 %configure --with-imagick=%{prefix} --with-php-config=%{_bindir}/php-config
 %{__make}
+popd
 
 %if %{with_zts}
-cd ../ZTS
+pushd ZTS
 zts-phpize
 %configure --with-imagick=%{prefix} --with-php-config=%{_bindir}/zts-php-config
 %{__make}
+popd
 %endif
 
 
@@ -92,7 +94,9 @@ install -m 0664 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
 
 
 %{__rm} -rf %{buildroot}/%{_includedir}/php/ext/%{pecl_name}/
+%if %{with_zts}
 %{__rm} -rf %{buildroot}/%{_includedir}/php-zts/php/ext/%{pecl_name}/
+%endif
 
 
 %check
@@ -101,6 +105,12 @@ php --no-php-ini \
     --define extension_dir=%{buildroot}%{php_extdir} \
     --define extension=%{pecl_name}.so \
     --modules | grep %{pecl_name}
+%if %{with_zts}
+zts-php --no-php-ini \
+    --define extension_dir=%{buildroot}%{php_ztsextdir} \
+    --define extension=%{pecl_name}.so \
+    --modules | grep %{pecl_name}
+%endif
 
 
 %post
@@ -124,14 +134,15 @@ fi
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/php.d/%{ini_name}
 
 %if %{with_zts}
-%config(noreplace) %{php_ztsinidir}/%{ini_name}
 %{php_ztsextdir}/%{pecl_name}.so
+%config(noreplace) %verify(not md5 mtime size) %{php_ztsinidir}/%{ini_name}
 %endif
 
 
 %changelog
 * Tue Mar 15 2016 Carl George <carl.george@rackspace.com> - 3.4.1-1.ius
 - Latest upstream
+- ZTS cleanup
 
 * Wed Feb 17 2016 Carl George <carl.george@rackspace.com> - 3.3.0-3.ius
 - Explicitly require %%{php_base}(api) and %%{php_base}(zend-abi)
