@@ -8,8 +8,8 @@
 
 Summary: Provides a wrapper to the ImageMagick library
 Name: %{php_base}-pecl-%{pecl_name}
-Version: 3.4.1
-Release: 2.ius%{?dist}
+Version: 3.4.3
+Release: 1.ius%{?dist}
 License: PHP
 Group: Development/Libraries
 Source0: http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
@@ -146,6 +146,9 @@ fi
 
 
 %changelog
+* Thu Feb 02 2017 Ben Harper <ben.harper@rackspace.com> - 3.4.3-1.ius
+- Latest upstream
+
 * Thu Jun 16 2016 Ben Harper <ben.harper@rackspace.com> - 3.4.1-2.ius
 - update filters to include zts
 
